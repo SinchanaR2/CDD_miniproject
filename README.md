@@ -8,7 +8,7 @@ Flask + SQLite + Leaflet/OpenStreetMap + Bootstrap, with Docker and GitHub Actio
     python app.py
 Open http://127.0.0.1:5000
 
-Admin login: admin@roadraksh.com / admin123  (change before deploying)
+
 
 ## Tests        pytest -q
 ## Docker       docker compose up --build
