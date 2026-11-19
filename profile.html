@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}Profile{% endblock %}{% block content %}
+<div class="container sec" style="max-width:480px"><a class="back" href="/">← Back</a>
+<div class="glass text-center py-4"><div class="profile-av">{{ user.name[0]|upper }}</div>
+<h4 class="mb-0">{{ user.name }}</h4><p class="text-secondary">{{ user.email }}</p>
+<div class="row g-2 mb-4"><div class="col-6"><div class="glass"><div class="stat">{{ total }}</div><div class="stat-l">Complaints</div></div></div>
+<div class="col-6"><div class="glass"><div class="stat" style="color:var(--green)">{{ done }}</div><div class="stat-l">Resolved</div></div></div></div>
+<div class="d-grid gap-2">{% if user.is_admin %}<a class="btn btn-teal" href="{{ url_for('admin') }}">Open Admin Dashboard</a>{% endif %}
+<a class="btn btn-ghost" href="{{ url_for('my_reports') }}">My complaints</a><a class="btn btn-main" href="{{ url_for('logout') }}">Logout</a></div></div></div>{% endblock %}
