@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}Register Complaint{% endblock %}{% block content %}
+<div class="container sec" style="max-width:760px"><a class="back" href="/">← Back</a>
+<h2>Register <span class="grad">complaint</span></h2><p class="text-secondary mb-4">All fields marked <span class="req">*</span> are required.</p>
+<form method="post" enctype="multipart/form-data" class="glass">
+<div class="mb-3"><label class="form-label">Complaint type <span class="req">*</span></label><select name="issue_type" class="form-select" required>{% for t in types %}<option>{{ t }}</option>{% endfor %}</select></div>
+<div class="mb-3"><label class="form-label">Description <span class="req">*</span></label><textarea name="description" rows="3" class="form-control" placeholder="Describe the damage, size, danger..." required></textarea></div>
+<div class="mb-3"><label class="form-label">Address <span class="req">*</span></label><input name="address" class="form-control" placeholder="e.g. Near City Mall, MG Road" required></div>
+<div class="mb-3"><label class="form-label">Image <span class="req">*</span></label><input type="file" id="photo" name="photo" accept="image/*" class="form-control" required><img id="preview" class="d-none mt-2 w-100 rounded-3" alt=""></div>
+<div class="mb-4"><div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2"><div><label class="form-label mb-0">Live map: pin location <span class="req">*</span></label><div class="small text-secondary">Selected: <span id="coords">none</span></div></div>
+<button type="button" id="gps" class="btn btn-teal btn-sm">📍 Use my location</button></div><div id="pickmap"></div></div>
+<input type="hidden" name="lat" id="lat"><input type="hidden" name="lng" id="lng">
+<button class="btn btn-main w-100 btn-lg">Submit</button></form></div>
+{% endblock %}{% block scripts %}<script>initPicker()</script>{% endblock %}

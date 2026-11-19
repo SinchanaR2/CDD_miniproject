@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}Track my Complaints{% endblock %}{% block content %}
+<div class="container sec"><a class="back" href="/">← Back</a>
+<div class="d-flex justify-content-between flex-wrap gap-2 mb-3"><h2>Track my <span class="grad">complaints</span></h2><a href="{{ url_for('report') }}" class="btn btn-main">+ New complaint</a></div>
+<div class="d-flex gap-2 flex-wrap mb-3"><a class="pill-f {{ 'on' if not current }}" href="{{ url_for('my_reports', q=q) }}">All ({{ total }})</a>
+{% for s in statuses %}<a class="pill-f {{ 'on' if current==s }}" href="{{ url_for('my_reports', status=s, q=q) }}">{{ s }} ({{ counts[s] }})</a>{% endfor %}{% if removed %}<a class="pill-f {{ 'on' if current=='Archived' }}" href="{{ url_for('my_reports', status='Archived', q=q) }}">Removed ({{ removed }})</a>{% endif %}</div>
+<form method="get" class="d-flex gap-2 mb-4">{% if current %}<input type="hidden" name="status" value="{{ current }}">{% endif %}
+<input name="q" value="{{ q }}" class="form-control" placeholder="🔍 Search my complaints..."><button class="btn btn-teal">Search</button>
+{% if q or current %}<a class="btn btn-ghost" href="{{ url_for('my_reports') }}">Clear</a>{% endif %}</form>
+<div class="row g-4">{% for r in reports %}<div class="col-md-6 col-lg-4">{% include "_card.html" %}</div>
+{% else %}<div class="glass text-center py-5"><h5>No complaints found</h5><p class="text-secondary mb-0">Try another filter, or register a new complaint.</p></div>{% endfor %}</div></div>{% endblock %}
