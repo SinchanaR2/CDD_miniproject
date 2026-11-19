@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% block title %}Admin{% endblock %}{% block content %}
+<div class="container sec"><a class="back" href="/">← Back</a><h2 class="mb-1">Admin <span class="grad">dashboard</span></h2><p class="text-secondary mb-4">Review, update and manage all complaints. Nothing is ever permanently deleted.</p>
+<div class="d-flex gap-2 flex-wrap mb-3"><a class="pill-f {{ 'on' if not current and not view }}" href="{{ url_for('admin', q=q) }}">All ({{ reports|length }})</a>
+{% for s in statuses %}<a class="pill-f {{ 'on' if current==s }}" href="{{ url_for('admin', status=s, q=q) }}">{{ s }} ({{ counts[s] }})</a>{% endfor %}
+<a class="pill-f {{ 'on' if view }}" href="{{ url_for('admin', view='archived', q=q) }}">🗂 Archived ({{ archived_count }})</a></div>
+{% if not view %}
+<div class="glass mb-4"><b>Complaints by type</b><div class="mt-3">{% for t,n in by_type.items() %}
+<div class="d-flex align-items-center gap-3 mb-2"><span style="width:130px" class="small text-secondary">{{ t }}</span>
+<div class="flex-grow-1" style="background:var(--line);border-radius:9px;height:10px"><div style="width:{{ (n/reports|length*100)|round }}%;height:10px;border-radius:9px;background:var(--teal)"></div></div><b>{{ n }}</b></div>{% endfor %}</div></div>
+<div class="mb-4"><div class="d-flex justify-content-between mb-2"><b>🗺️ Live map</b><small class="text-secondary">{{ current or 'All' }} complaints</small></div><div id="amap"></div></div>
+{% else %}<div class="alert alert-info">🗂 Archived reports are hidden from the public map and counts. Restore a report to bring it back.</div>{% endif %}
+<form method="get" class="d-flex gap-2 flex-wrap mb-2">{% if current %}<input type="hidden" name="status" value="{{ current }}">{% endif %}{% if view %}<input type="hidden" name="view" value="archived">{% endif %}
+<input name="q" value="{{ q }}" class="form-control" style="flex:1;min-width:220px" placeholder="🔍 Search by ID, type, address, reporter, description...">
+<button class="btn btn-teal">Search</button>{% if q or current %}<a href="{{ url_for('admin', view=view or None) }}" class="btn btn-ghost">Clear</a>{% endif %}</form>
+<div class="small text-secondary mb-3">Showing {{ shown|length }} of {{ archived_count if view else reports|length }} reports</div>
+<div class="row g-4">{% for r in shown %}<div class="col-md-6 col-lg-4"><div class="glass rcard h-100" id="a{{ r.id }}" {% if view %}style="opacity:.9"{% endif %}>
+{% if r.photo %}<a target="_blank" href="{{ url_for('static', filename='uploads/' ~ r.photo) }}"><img src="{{ url_for('static', filename='uploads/' ~ r.photo) }}" alt="" {% if view %}style="filter:grayscale(1)"{% endif %}></a>{% else %}<div class="noimg">🕳️</div>{% endif %}
+<div class="d-flex justify-content-between align-items-center mb-2"><b>#{{ r.id }} · {{ r.issue_type }}</b><span class="st st-{{ r.status.split()[0] }}">{{ r.status }}</span></div>
+<p class="small text-secondary mb-2">{{ r.description[:120] }}</p>
+<div class="small text-secondary mb-3">📍 {{ r.address or '-' }}<br>👤 {{ r.reporter }} · {{ r.created_at[:10] }}<br><a target="_blank" href="https://www.openstreetmap.org/?mlat={{ r.lat }}&mlon={{ r.lng }}#map=17/{{ r.lat }}/{{ r.lng }}">Open in map</a></div>
+{% if view %}
+<div class="small p-2 rounded-3 mb-3" style="background:#F1F5F9;color:#475569">🚫 <b>Reason:</b> {{ r.archive_reason }}<br>Archived {{ (r.archived_at or '')[:10] }}</div>
+<form method="post" action="{{ url_for('restore', rid=r.id) }}"><button class="btn btn-teal btn-sm w-100">↩ Restore report</button></form>
+{% else %}
+<div class="d-flex gap-2"><button class="btn btn-teal btn-sm flex-grow-1" data-bs-toggle="collapse" data-bs-target="#e{{ r.id }}">✏️ Edit</button>
+<button class="btn btn-ghost btn-sm flex-grow-1" data-bs-toggle="collapse" data-bs-target="#x{{ r.id }}">🗂 Archive</button></div>
+<form method="post" action="{{ url_for('update', rid=r.id) }}" class="collapse mt-3" id="e{{ r.id }}" data-bs-parent="#a{{ r.id }}">
+<select name="status" class="form-select form-select-sm mb-2">{% for s in statuses %}<option {{ 'selected' if s==r.status }}>{{ s }}</option>{% endfor %}</select>
+<input name="note" class="form-control form-control-sm mb-2" placeholder="Note for the citizen" value="{{ r.admin_note or '' }}"><button class="btn btn-main btn-sm w-100">Save changes</button></form>
+<form method="post" action="{{ url_for('archive', rid=r.id) }}" class="collapse mt-3" id="x{{ r.id }}" data-bs-parent="#a{{ r.id }}">
+<div class="small text-secondary mb-2">The citizen will see this reason. You can restore it anytime.</div>
+<select name="reason" class="form-select form-select-sm mb-2" required><option value="" disabled selected>Select a reason *</option>{% for x in reasons %}<option>{{ x }}</option>{% endfor %}</select>
+<input name="detail" class="form-control form-control-sm mb-2" placeholder="Extra detail (optional)"><button class="btn btn-main btn-sm w-100" onclick="return confirm('Archive report #{{ r.id }}?')">Archive report</button></form>
+{% endif %}
+</div></div>{% else %}<div class="glass text-center py-5 text-secondary">{{ 'No archived reports.' if view else 'No reports match your search.' }}</div>{% endfor %}</div></div>
+{% endblock %}{% block scripts %}{% if not view %}<script>loadMarkers(baseMap("amap"),"{{ current }}")</script>{% endif %}{% endblock %}
